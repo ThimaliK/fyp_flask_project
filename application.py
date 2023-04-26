@@ -9,6 +9,8 @@ from my_health.user import User
 from my_health.food import Food
 import os
 from werkzeug.utils import secure_filename
+from fitbit_api.fitbit_integration import FitbitIntegration
+from bson import ObjectId
 
 application = Flask(__name__)
 bcrypt = Bcrypt(application)
@@ -38,7 +40,7 @@ def load_user(user_id):
 
     objInstance = ObjectId(user_id)
 
-    print("user id"+ user_id)
+    print("USER ID-----------------------------------------------"+ user_id)
 
     print("a----------------------------------------------------")
 
@@ -221,5 +223,25 @@ def get_best_matched_recipes():
     top_5_recipes = food.get_extracted_recipes()
 
     return top_5_recipes, 200
+
+
+@application.route("/home_data", methods=["POST", "GET"])
+@login_required
+def home_data():
+    
+    fi = FitbitIntegration()
+
+    response = fi.authorise()
+
+    return response
+
+
+############################################################################################################################
+
+@application.route("/sign_out", methods=["POST", "GET"])
+@login_required
+def sign_out():
+    logout_user()
+    return "signed out successfully"
 
 
