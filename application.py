@@ -1,10 +1,11 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_bcrypt import Bcrypt
 from flask_pymongo import pymongo
 import nltk
 import json
 from typing import Any
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from my_health.user import User
 
 application = Flask(__name__)
 bcrypt = Bcrypt(application)
@@ -61,4 +62,124 @@ def load_user(user_id):
 @application.route('/')
 def hello_world():
     return "MyHealth API"
+
+
+@application.route("/sign_up", methods=["POST", "GET"])
+def sign_up():
+    if request.method == "POST":
+
+        print("1-------------------------------------------------------")
+
+        data = request.json
+        username = data.get('username')
+        email = data.get('email')
+
+        print("2-------------------------------------------------------")
+
+        hashed_password = bcrypt.generate_password_hash(data.get("password")).decode('utf-8')
+
+        country = data.get("country")
+        birth_date = data.get("birth_date")
+        food_preferences = data.get("food_preferences")
+        fit_bit_id = data.get("fit_bit_id")
+
+        print("3-------------------------------------------------------")
+
+        new_user = {
+            "username" : username,
+            "email" : email,
+            "password" : hashed_password,
+            "country" : country,
+            "birth_date" : birth_date,
+            "food_preferences" : food_preferences,
+            "fit_bit_id": fit_bit_id
+        }
+
+        user_collection = pymongo.collection.Collection(db, 'users')
+
+        for user in user_collection.find():
+            if(user["email"]==email):
+                print("taken email - "+user["email"])
+                return jsonify({"response": "An account with this email address is already registered"}), 409
+
+        print("4-------------------------------------------------------")
+
+        user_collection.insert_one(new_user)
+
+        print("5-------------------------------------------------------")
+
+        return jsonify({"response": "registration successful"}), 200
+
+    return jsonify({"response": "registration unsuccessful"}), 500
+
+
+
+@application.route("/sign_in", methods=["POST", "GET"])
+def sign_in():
+    if request.method == "POST":
+
+        print("1-------------------------------------------------------")
+
+        user_collection = pymongo.collection.Collection(db, 'users')
+
+        print("2-------------------------------------------------------")
+        
+        email = request.json.get('email')
+
+        print("3-------------------------------------------------------")
+
+        cursor = user_collection.find_one( {"email": email} )
+
+        print("4-------------------------------------------------------")
+
+        print(cursor)
+
+        print("EMAIL--------------------"+cursor["email"])
+
+        # if len(list(cursor))==0:
+            
+        #     return jsonify({"response": "There is no account for this email address"}), 401
+
+        try:
+
+            #data_json = MongoJSONEncoder().encode(list(cursor)[0])
+
+            print("5-------------------------------------------------------")
+
+            # data_obj = json.loads(data_json)
+
+            if cursor:
+                if bcrypt.check_password_hash(cursor["password"], request.json.get('password')):
+
+                    print("6-------------------------------------------------------")
+
+                    correct_user = User(
+                        id = cursor.get('_id'),
+                        username = cursor["username"],
+                        email = cursor["email"],
+                        password = cursor["password"],
+                        country = cursor["country"],
+                        birth_date = cursor["birth_date"],
+                        food_preferences = cursor["food_preferences"],
+                        fit_bit_id = cursor["fit_bit_id"]
+                    )
+
+                    print("7-------------------------------------------------------")
+
+                    login_user(correct_user)
+
+                    print("8-------------------------------------------------------")
+
+                    # return json responses
+
+                    return jsonify({"response": "logged in"}), 200
+
+                else:
+                    return jsonify({"response": "Invalid credentials"}), 401  
+
+        except:
+            return jsonify({"response": "Invalid credentials"}), 401  
+
+    
+    return jsonify({"response": "Login unsuccessful"})
 
