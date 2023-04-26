@@ -228,10 +228,16 @@ def get_best_matched_recipes():
 @application.route("/home_data", methods=["POST", "GET"])
 @login_required
 def home_data():
+
+    print("fit bit one -------------------------------------------------------------")
     
     fi = FitbitIntegration()
 
+    print("fit bit two -------------------------------------------------------------")
+
     response = fi.authorise()
+
+    print("fit bit three -------------------------------------------------------------")
 
     return response
 

@@ -14,15 +14,29 @@ class FitbitIntegration():
 
     def authorise(self):
 
+        print("fit bit 1 -------------------------------------------------------------")
+
         server=Oauth2.OAuth2Server(CLIENT_ID, CLIENT_SECRET)
+
+        print("fit bit 2 -------------------------------------------------------------")
+
         server.browser_authorize()
+
+        print("fit bit 3 -------------------------------------------------------------")
+
         ACCESS_TOKEN=str(server.fitbit.client.session.token['access_token'])
         REFRESH_TOKEN=str(server.fitbit.client.session.token['refresh_token'])
+
+        print("fit bit 4-------------------------------------------------------------")
 
         print("ACCESS_TOKEN" + ACCESS_TOKEN)
         print("REFRESH_TOKEN" + REFRESH_TOKEN)
 
+        print("fit bit 5 -------------------------------------------------------------")
+
         auth2_client=fitbit.Fitbit(CLIENT_ID,CLIENT_SECRET,oauth2=True,access_token=ACCESS_TOKEN,refresh_token=REFRESH_TOKEN)
+
+        print("fit bit 6 -------------------------------------------------------------")
 
         USER_ID = 'BFJ5X6'
 
@@ -32,6 +46,8 @@ class FitbitIntegration():
 
         r = requests.get(URL, headers=HEADERS)
 
+        print("fit bit 7 -------------------------------------------------------------")
+
         data = r.json()
 
         user_data = data["user"]
@@ -40,6 +56,8 @@ class FitbitIntegration():
         height = user_data["height"]
         weight = user_data["weight"]
         avg_daily_steps = user_data["averageDailySteps"]
+
+        print("fit bit 8 -------------------------------------------------------------")
 
         response = {"date_of_birth": date_of_birth, "height": height, "weight": weight, "avg_daily_steps": avg_daily_steps}
 
