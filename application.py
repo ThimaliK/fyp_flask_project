@@ -19,6 +19,7 @@ db = client.get_database('db1')
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
+nltk.download('punkt')
 
 class MongoJSONEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Any:
