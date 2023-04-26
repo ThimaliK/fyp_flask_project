@@ -6,6 +6,9 @@ import json
 from typing import Any
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from my_health.user import User
+from my_health.food import Food
+import os
+from werkzeug.utils import secure_filename
 
 application = Flask(__name__)
 bcrypt = Bcrypt(application)
@@ -182,4 +185,40 @@ def sign_in():
 
     
     return jsonify({"response": "Login unsuccessful"})
+
+
+@application.route("/recognise_ingredients", methods=["POST", "GET"])
+#@login_required
+def recognise_ingredients():
+
+    if request.method == 'POST':
+
+        uploaded_files = request.files.getlist("files[]")
+
+        for uploaded_file in uploaded_files:
+            # uploaded_file.save(secure_filename("ingredient_imges/"+uploaded_file.filename))
+
+            uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
+
+        food = Food()
+
+        recognised_ingredients = food.get_ingredient_predictions("ingredient_images/")
+
+        response = food.extract_and_save_recipes(recognised_ingredients)
+
+        return response, 200
+
+        # empty the ingredient images folder after the process is completed
+
+
+@application.route("/get_best_matched_recipes", methods=["POST", "GET"])
+#@login_required
+def get_best_matched_recipes():
+
+    food = Food()
+
+    top_5_recipes = food.get_extracted_recipes()
+
+    return top_5_recipes, 200
+
 
