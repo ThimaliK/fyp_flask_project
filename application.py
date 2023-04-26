@@ -5,8 +5,9 @@ import nltk
 import json
 from typing import Any
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from my_health.user import User
-from my_health.food import Food
+from my_health.models.user import User
+from my_health.controllers.food_controller import FoodController
+from my_health.controllers.user_controller import UserController
 import os
 from werkzeug.utils import secure_filename
 from fitbit_api.fitbit_integration import FitbitIntegration
@@ -15,6 +16,7 @@ from bson import ObjectId
 application = Flask(__name__)
 bcrypt = Bcrypt(application)
 application.secret_key = 'super secret key'
+
 CONNECTION_STRING = "mongodb+srv://w1761084:6thanos.@cluster0.k2oynue.mongodb.net/?retryWrites=true&w=majority"
 client = pymongo.MongoClient(CONNECTION_STRING)
 db = client.get_database('db1')
@@ -101,20 +103,10 @@ def sign_up():
             "fit_bit_id": fit_bit_id
         }
 
-        user_collection = pymongo.collection.Collection(db, 'users')
+        user_controller = UserController()
+        sign_up_response = user_controller.sign_up(new_user)
 
-        for user in user_collection.find():
-            if(user["email"]==email):
-                print("taken email - "+user["email"])
-                return jsonify({"response": "An account with this email address is already registered"}), 409
-
-        print("4-------------------------------------------------------")
-
-        user_collection.insert_one(new_user)
-
-        print("5-------------------------------------------------------")
-
-        return jsonify({"response": "registration successful"}), 200
+        return jsonify({"response": sign_up_response}), 200
 
     return jsonify({"response": "registration unsuccessful"}), 500
 
@@ -126,103 +118,46 @@ def sign_in():
 
         print("1-------------------------------------------------------")
 
-        user_collection = pymongo.collection.Collection(db, 'users')
-
         print("2-------------------------------------------------------")
         
         email = request.json.get('email')
+        password = request.json.get('password')
 
         print("3-------------------------------------------------------")
 
-        cursor = user_collection.find_one( {"email": email} )
-
         print("4-------------------------------------------------------")
 
-        print(cursor)
+        user_controller = UserController()
+        sign_in_response = user_controller.sign_in(email, password)
 
-        print("EMAIL--------------------"+cursor["email"])
-
-        # if len(list(cursor))==0:
-            
-        #     return jsonify({"response": "There is no account for this email address"}), 401
-
-        try:
-
-            #data_json = MongoJSONEncoder().encode(list(cursor)[0])
-
-            print("5-------------------------------------------------------")
-
-            # data_obj = json.loads(data_json)
-
-            if cursor:
-                if bcrypt.check_password_hash(cursor["password"], request.json.get('password')):
-
-                    print("6-------------------------------------------------------")
-
-                    correct_user = User(
-                        id = cursor.get('_id'),
-                        username = cursor["username"],
-                        email = cursor["email"],
-                        password = cursor["password"],
-                        country = cursor["country"],
-                        birth_date = cursor["birth_date"],
-                        food_preferences = cursor["food_preferences"],
-                        fit_bit_id = cursor["fit_bit_id"]
-                    )
-
-                    print("7-------------------------------------------------------")
-
-                    login_user(correct_user)
-
-                    print("8-------------------------------------------------------")
-
-                    # return json responses
-
-                    return jsonify({"response": "logged in"}), 200
-
-                else:
-                    return jsonify({"response": "Invalid credentials"}), 401  
-
-        except:
-            return jsonify({"response": "Invalid credentials"}), 401  
-
-    
-    return jsonify({"response": "Login unsuccessful"})
+        return sign_in_response
 
 
 @application.route("/recognise_ingredients", methods=["POST", "GET"])
-#@login_required
+@login_required
 def recognise_ingredients():
 
     if request.method == 'POST':
 
         uploaded_files = request.files.getlist("files[]")
-
         for uploaded_file in uploaded_files:
-            # uploaded_file.save(secure_filename("ingredient_imges/"+uploaded_file.filename))
-
             uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
 
-        food = Food()
-
-        recognised_ingredients = food.get_ingredient_predictions("ingredient_images/")
-
-        response = food.extract_and_save_recipes(recognised_ingredients)
+        food_conntroller = FoodController()
+        recognised_ingredients = food_conntroller.get_ingredient_predictions("ingredient_images/")
+        response = food_conntroller.extract_recipes_based_on_ingredients(recognised_ingredients)
 
         return response, 200
 
-        # empty the ingredient images folder after the process is completed
-
 
 @application.route("/get_best_matched_recipes", methods=["POST", "GET"])
-#@login_required
+@login_required
 def get_best_matched_recipes():
 
-    food = Food()
+    food_conntroller = FoodController()
+    best_matched_recipes = food_conntroller.get_extracted_recipes()
 
-    top_5_recipes = food.get_extracted_recipes()
-
-    return top_5_recipes, 200
+    return best_matched_recipes, 200
 
 
 @application.route("/home_data", methods=["POST", "GET"])
@@ -242,12 +177,22 @@ def home_data():
     return response
 
 
+@application.route("/fitbit_auth", methods=["POST", "GET"])
+@login_required
+def fitbit_auth():
+    logout_user()
+    return "fitbit authorised successfully"
+
+
 ############################################################################################################################
 
 @application.route("/sign_out", methods=["POST", "GET"])
 @login_required
 def sign_out():
-    logout_user()
-    return "signed out successfully"
+
+    user_controller = UserController()
+    sign_out_response = user_controller.sign_out()
+    
+    return sign_out_response
 
 
