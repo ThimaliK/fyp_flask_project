@@ -134,7 +134,7 @@ def sign_in():
 
 
 @application.route("/recognise_ingredients", methods=["POST", "GET"])
-@login_required
+#@login_required
 def recognise_ingredients():
 
     if request.method == 'POST':
@@ -151,7 +151,7 @@ def recognise_ingredients():
 
 
 @application.route("/get_best_matched_recipes", methods=["POST", "GET"])
-@login_required
+#@login_required
 def get_best_matched_recipes():
 
     food_conntroller = FoodController()
