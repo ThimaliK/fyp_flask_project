@@ -174,14 +174,27 @@ def get_best_matched_recipes():
 #@login_required
 def recognise_ingredients_for_customisation():
 
+
+    print("F1-------------------------------------------------")
+
     if request.method == 'POST':
+
+        print("F2-------------------------------------------------")
 
         uploaded_files = request.files.getlist("files[]")
         for uploaded_file in uploaded_files:
             uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
 
+
+        email = request.form.get('email')
+
+        print("F3-------------------------------------------------")
+
         food_conntroller = FoodController()
-        response = food_conntroller.extract_customised_recipes("ingredient_images/")
+
+        print("F4-------------------------------------------------")
+
+        response = food_conntroller.extract_customised_recipes("ingredient_images/", email)
 
         return response
 
@@ -189,7 +202,12 @@ def recognise_ingredients_for_customisation():
 #@login_required
 def get_best_matched_customised_recipes():
 
+    print("C1-------------------------------------------------")
+
     food_conntroller = FoodController()
+
+    print("C2-------------------------------------------------")
+
     best_matched_recipes = food_conntroller.get_extracted_recipes("best_matched_customised_recipes.json")
 
     return best_matched_recipes, 200

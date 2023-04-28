@@ -95,7 +95,7 @@ class UserController():
                     else:
                         bmi = ""
 
-                    return {"username": cursor["username"], "bmi": bmi}
+                    return {"username": cursor["username"], "bmi": bmi, "email": cursor["email"]}
 
                 else:
                     return {"error_response": "Invalid credentials"}  

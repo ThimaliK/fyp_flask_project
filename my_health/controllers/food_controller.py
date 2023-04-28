@@ -125,110 +125,118 @@ class FoodController():
             return json_object
         
         
-    def extract_customised_recipes(self, image_directory):  
+    def extract_customised_recipes(self, image_directory, email):  
+
+        print("F5-------------------------------------------------")
 
         is_auth = current_user.is_authenticated
 
         # print("is auth--------------"+is_auth)
 
-        if current_user.is_authenticated:
-            user_id = current_user.get_id()
+        
 
-            db_conn = DbConnection()
-            db = db_conn.get_database()
-            user_collection = pymongo.collection.Collection(db, 'users')
-            recipe_collection = pymongo.collection.Collection(db, 'recipes')
-            objInstance = ObjectId(user_id)
+        print("F6-------------------------------------------------")
 
-            try:
-
-                print("1-----------------------------------------------")
-
-                cursor = user_collection.find_one( {"_id": objInstance} )
-
-                print(cursor)
-
-                country = cursor["country"]
-                food_preferences = cursor["food_preferences"]
-                food_preferences = food_preferences.replace("[", "" )
-                food_preferences = food_preferences.replace("]", "" )
-
-                print("2-----------------------------------------------")
-
-                user_info_tokens = nltk.word_tokenize(food_preferences)
-                user_info_tokens = [self.LEMMATIZER.lemmatize(w.lower()) for w in user_info_tokens if w != ","]
-                user_info_tokens.append(country)
-
-                print("3-----------------------------------------------")
-
-                recipe_cursor = recipe_collection.find({}, {'_id': False})
-                recipes_list = []
-                for document in recipe_cursor:
-                    recipes_list.append(document)
-
-                print("4-----------------------------------------------")
-
-                recipe_tags_list = []
-                for recipe in recipes_list:
-                    recipe_tokens = nltk.word_tokenize(recipe["tags"])
-                    recipe_tokens = [self.LEMMATIZER.lemmatize(w.lower()) for w in recipe_tokens if w != ","]
-                    recipe_tokens.append(recipe["country"])
-                    recipe_tags_list.append(recipe_tokens)
-
-                print("5-----------------------------------------------")
-                
-                recognised_ingredients = self.get_ingredient_predictions(image_directory)
-                recognised_ingredients = [self.LEMMATIZER.lemmatize(w.lower()) for w in recognised_ingredients if w != ","]
-
-                print("6-----------------------------------------------")
-
-                jaccard_scores_with_user_info = []
-
-                for recipe_tags in recipe_tags_list:
-                    jaccard_score = self.jaccard_similarity(recipe_tags, user_info_tokens)
-                    jaccard_scores_with_user_info.append(jaccard_score)
-                
-                top_10_recipe_indices = np.argsort(jaccard_scores_with_user_info)[-10:]
-                top_10_recipes = []
-                for i in range(10):
-                    top_10_recipes.append(recipes_list[top_10_recipe_indices[i]])
-
-                print("7-----------------------------------------------")
-
-                
-                ingredient_tokens_list = []
-                for recipe in top_10_recipes:
-                    ingredient_tokens = nltk.word_tokenize(recipe["ingredients"])
-                    ingredient_tokens = [self.LEMMATIZER.lemmatize(w.lower()) for w in ingredient_tokens if w != ","]
-                    ingredient_tokens_list.append(ingredient_tokens)
-
-                jaccard_scores_with_ingredients = []
-
-                print("8-----------------------------------------------")
-                
-                for recipe_ingredients in ingredient_tokens_list:
-                    jaccard_score = self.jaccard_similarity(recipe_ingredients, recognised_ingredients)
-                    jaccard_scores_with_ingredients.append(jaccard_score)
-
-                top_5_recipe_indices = np.argsort(jaccard_scores_with_ingredients)[-10:]
-                top_5_recipes = []
-                for i in range(5):
-                    top_5_recipes.append(recipes_list[top_5_recipe_indices[i]])
-
-                print("9-----------------------------------------------")
-
-                self.save_recipes_as_json(top_5_recipes, "best_matched_customised_recipes.json")
-
-                print("10-----------------------------------------------")
-                
-                return "5_cutomised_recipes_extracted", 200
             
-            except:
+
+            # user_id = current_user.get_id()
+
+        db_conn = DbConnection()
+        db = db_conn.get_database()
+        user_collection = pymongo.collection.Collection(db, 'users')
+        recipe_collection = pymongo.collection.Collection(db, 'recipes')
+        # objInstance = ObjectId(user_id)
+
+        print("F7-------------------------------------------------")
+
+        try:
+
+            print("1-----------------------------------------------")
+
+            cursor = user_collection.find_one( {"email": email} )
+
+            print(cursor)
+
+            country = cursor["country"]
+            food_preferences = cursor["food_preferences"]
+            food_preferences = food_preferences.replace("[", "" )
+            food_preferences = food_preferences.replace("]", "" )
+
+            print("2-----------------------------------------------")
+
+            user_info_tokens = nltk.word_tokenize(food_preferences)
+            user_info_tokens = [self.LEMMATIZER.lemmatize(w.lower()) for w in user_info_tokens if w != ","]
+            user_info_tokens.append(country)
+
+            print("3-----------------------------------------------")
+
+            recipe_cursor = recipe_collection.find({}, {'_id': False})
+            recipes_list = []
+            for document in recipe_cursor:
+                recipes_list.append(document)
+
+            print("4-----------------------------------------------")
+
+            recipe_tags_list = []
+            for recipe in recipes_list:
+                recipe_tokens = nltk.word_tokenize(recipe["tags"])
+                recipe_tokens = [self.LEMMATIZER.lemmatize(w.lower()) for w in recipe_tokens if w != ","]
+                recipe_tokens.append(recipe["country"])
+                recipe_tags_list.append(recipe_tokens)
+
+            print("5-----------------------------------------------")
                 
-                return "user info extraction unsucessful", 500
+            recognised_ingredients = self.get_ingredient_predictions(image_directory)
+            recognised_ingredients = [self.LEMMATIZER.lemmatize(w.lower()) for w in recognised_ingredients if w != ","]
+
+            print("6-----------------------------------------------")
+
+            jaccard_scores_with_user_info = []
+
+            for recipe_tags in recipe_tags_list:
+                jaccard_score = self.jaccard_similarity(recipe_tags, user_info_tokens)
+                jaccard_scores_with_user_info.append(jaccard_score)
+                
+            top_10_recipe_indices = np.argsort(jaccard_scores_with_user_info)[-10:]
+            top_10_recipes = []
+            for i in range(10):
+                top_10_recipes.append(recipes_list[top_10_recipe_indices[i]])
+
+            print("7-----------------------------------------------")
+
+                
+            ingredient_tokens_list = []
+            for recipe in top_10_recipes:
+                ingredient_tokens = nltk.word_tokenize(recipe["ingredients"])
+                ingredient_tokens = [self.LEMMATIZER.lemmatize(w.lower()) for w in ingredient_tokens if w != ","]
+                ingredient_tokens_list.append(ingredient_tokens)
+
+            jaccard_scores_with_ingredients = []
+
+            print("8-----------------------------------------------")
+                
+            for recipe_ingredients in ingredient_tokens_list:
+                jaccard_score = self.jaccard_similarity(recipe_ingredients, recognised_ingredients)
+                jaccard_scores_with_ingredients.append(jaccard_score)
+
+            top_5_recipe_indices = np.argsort(jaccard_scores_with_ingredients)[-10:]
+            top_5_recipes = []
+            for i in range(5):
+                top_5_recipes.append(recipes_list[top_5_recipe_indices[i]])
+
+            print("9-----------------------------------------------")
+
+            self.save_recipes_as_json(top_5_recipes, "best_matched_customised_recipes.json")
+
+            print("10-----------------------------------------------")
+                
+            return "5_cutomised_recipes_extracted", 200
+            
+        except:
+                
+            return "user info extraction unsucessful", 500
    
-        else:
-            return "user is not logged in", 500
+        
 
 
         
