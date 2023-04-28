@@ -171,7 +171,7 @@ def get_best_matched_recipes():
 
 
 @application.route("/recognise_ingredients_for_customisation", methods=["POST", "GET"])
-@login_required
+#@login_required
 def recognise_ingredients_for_customisation():
 
     if request.method == 'POST':
@@ -186,7 +186,7 @@ def recognise_ingredients_for_customisation():
         return response
 
 @application.route("/get_best_matched_customised_recipes", methods=["POST", "GET"])
-@login_required
+#@login_required
 def get_best_matched_customised_recipes():
 
     food_conntroller = FoodController()
