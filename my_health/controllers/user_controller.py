@@ -86,13 +86,22 @@ class UserController():
 
                     # return json responses
 
-                    return jsonify({"response": "logged in"}), 200
+                    if cursor["weight"]!=None and cursor["height"]!=None:
+                        weight = int(cursor["weight"])
+                        height = int(cursor["height"])
+
+                        bmi = self.get_bmi(weight, height)
+
+                    else:
+                        bmi = ""
+
+                    return {"username": cursor["username"], "bmi": bmi}
 
                 else:
-                    return jsonify({"response": "Invalid credentials"}), 401  
+                    return {"error_response": "Invalid credentials"}  
 
         except:
-            return jsonify({"response": "Invalid credentials"}), 401 
+            return {"error_response": "Invalid credentials"} 
 
     
     def sign_out(self):

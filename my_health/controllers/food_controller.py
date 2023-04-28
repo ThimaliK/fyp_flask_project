@@ -150,6 +150,8 @@ class FoodController():
 
                 country = cursor["country"]
                 food_preferences = cursor["food_preferences"]
+                food_preferences = food_preferences.replace("[", "" )
+                food_preferences = food_preferences.replace("]", "" )
 
                 print("2-----------------------------------------------")
 

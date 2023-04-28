@@ -137,7 +137,10 @@ def sign_in():
         user_controller = UserController()
         sign_in_response = user_controller.sign_in(email, password)
 
-        return sign_in_response
+        if "error_response" in sign_in_response:
+            return jsonify(sign_in_response), 401
+
+        return jsonify(sign_in_response), 200
 
 
 @application.route("/recognise_ingredients", methods=["POST", "GET"])
