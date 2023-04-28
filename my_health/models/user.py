@@ -20,12 +20,14 @@ class User(UserMixin):
     
 
 
-    def __init__(self, id, username, email, password, country, birth_date, food_preferences, fit_bit_id):
+    def __init__(self, id, username, email, password, country, birth_date, food_preferences, weight, height, fit_bit_id):
         self.id = id
         self.username = username
         self.email = email
         self.password = password
         self.country = country
         self.birth_date = birth_date
-        self.food_preferences = food_preferences
+        self.food_preferences = food_preferences,
+        self.weight = weight,
+        self.height = height,
         self.fit_bit_id = fit_bit_id

@@ -42,6 +42,13 @@ class UserController():
 
         cursor = user_collection.find_one( {"email": email} )
 
+        print(cursor)
+
+        print(cursor["password"])
+        print(password)
+
+        print(self.user_bcrypt.check_password_hash(cursor["password"], password))
+
         try:
 
             #data_json = MongoJSONEncoder().encode(list(cursor)[0])
@@ -51,6 +58,8 @@ class UserController():
             # data_obj = json.loads(data_json)
 
             if cursor:
+                print("5.5-------------------------------------------------------")
+
                 if self.user_bcrypt.check_password_hash(cursor["password"], password):
 
                     print("6-------------------------------------------------------")
@@ -63,6 +72,8 @@ class UserController():
                         country = cursor["country"],
                         birth_date = cursor["birth_date"],
                         food_preferences = cursor["food_preferences"],
+                        weight = cursor["weight"],
+                        height = cursor["height"],
                         fit_bit_id = cursor["fit_bit_id"]
                     )
 
@@ -87,6 +98,12 @@ class UserController():
 
         logout_user()
         return "signed out successfully"
+
+
+
+    def get_bmi(self, weight, height):
+
+        return weight / (height/100)**2
 
 
 

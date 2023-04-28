@@ -63,6 +63,8 @@ def load_user(user_id):
         country = data_obj["country"],
         birth_date = data_obj["birth_date"],
         food_preferences = data_obj["food_preferences"],
+        weight = data_obj["weight"],
+        height = data_obj["height"],
         fit_bit_id = data_obj["fit_bit_id"]
     )
 
@@ -89,6 +91,8 @@ def sign_up():
         country = data.get("country")
         birth_date = data.get("birth_date")
         food_preferences = data.get("food_preferences")
+        weight = data.get("weight")
+        height = data.get("height")
         fit_bit_id = data.get("fit_bit_id")
 
         print("3-------------------------------------------------------")
@@ -100,6 +104,8 @@ def sign_up():
             "country" : country,
             "birth_date" : birth_date,
             "food_preferences" : food_preferences,
+            "weight": weight,
+            "height": height,
             "fit_bit_id": fit_bit_id
         }
 
