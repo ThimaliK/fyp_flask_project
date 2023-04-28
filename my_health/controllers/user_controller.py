@@ -5,6 +5,7 @@ from flask_pymongo import pymongo
 from flask_bcrypt import Bcrypt
 # from application import application
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from bson import ObjectId
 
 class UserController():
 
@@ -98,12 +99,47 @@ class UserController():
 
         logout_user()
         return "signed out successfully"
+    
+
+    def get_user_info(self):
+
+        if current_user.is_authenticated:
+
+            try:
+
+                user_id = current_user.get_id()
+
+                db_conn = DbConnection()
+                db = db_conn.get_database()
+                user_collection = pymongo.collection.Collection(db, 'users')
+                objInstance = ObjectId(user_id)
+                cursor = user_collection.find_one( {"_id": objInstance} )
+
+                print(cursor)
+
+                if cursor["weight"]!=None and cursor["height"]!=None:
+
+                    weight = int(cursor["weight"])
+                    height = int(cursor["height"])
+
+                    bmi = self.get_bmi(weight, height)
+
+                    user_info = {"username": cursor["username"], "bmi": bmi}
+
+                    return user_info
+
+            except:
+                return {"error_response": "could not retrieve user info"}
+        
+        else:
+            return {"error_response": "user is not logged in"}
 
 
 
     def get_bmi(self, weight, height):
 
-        return weight / (height/100)**2
+        bmi = round((weight / (height/100)**2), 2)
+        return bmi
 
 
 

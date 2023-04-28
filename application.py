@@ -193,20 +193,20 @@ def get_best_matched_customised_recipes():
 
 
 @application.route("/home_data", methods=["POST", "GET"])
-@login_required
+# @login_required
 def home_data():
 
-    print("fit bit one -------------------------------------------------------------")
-    
-    fi = FitbitIntegration()
+    user_controller = UserController()
 
-    print("fit bit two -------------------------------------------------------------")
+    user_info = user_controller.get_user_info()
 
-    response = fi.authorise()
+    if "error_response" in user_info:
+        return {"username": "", "bmi": ""}, 500
 
-    print("fit bit three -------------------------------------------------------------")
+    return jsonify(user_info), 200
 
-    return response
+
+############################################################################################################################
 
 
 @application.route("/fitbit_auth", methods=["POST", "GET"])
@@ -216,7 +216,7 @@ def fitbit_auth():
     return "fitbit authorised successfully"
 
 
-############################################################################################################################
+
 
 @application.route("/sign_out", methods=["POST", "GET"])
 @login_required
