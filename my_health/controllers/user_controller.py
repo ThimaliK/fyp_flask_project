@@ -103,11 +103,19 @@ class UserController():
 
     def get_user_info(self):
 
+        print("L-----------------------------------------")
+
         if current_user.is_authenticated:
+
+            print("M-----------------------------------------")
 
             try:
 
+                print("N-----------------------------------------")
+
                 user_id = current_user.get_id()
+
+                print("O-----------------------------------------")
 
                 db_conn = DbConnection()
                 db = db_conn.get_database()
@@ -115,23 +123,38 @@ class UserController():
                 objInstance = ObjectId(user_id)
                 cursor = user_collection.find_one( {"_id": objInstance} )
 
+                print("P-----------------------------------------")
+
                 print(cursor)
 
                 if cursor["weight"]!=None and cursor["height"]!=None:
+
+                    print("Q-----------------------------------------")
 
                     weight = int(cursor["weight"])
                     height = int(cursor["height"])
 
                     bmi = self.get_bmi(weight, height)
 
+                    print("R-----------------------------------------")
+
                     user_info = {"username": cursor["username"], "bmi": bmi}
+
+                    print("S-----------------------------------------")
 
                     return user_info
 
-            except:
+            except Exception as e:
+
+                print("T-----------------------------------------")
+                print(e)
+
                 return {"error_response": "could not retrieve user info"}
         
         else:
+
+            print("U-----------------------------------------")
+
             return {"error_response": "user is not logged in"}
 
 
