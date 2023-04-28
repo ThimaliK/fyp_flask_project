@@ -16,7 +16,7 @@ from bson import ObjectId
 application = Flask(__name__)
 bcrypt = Bcrypt(application)
 application.secret_key = 'super secret key'
-application.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024 * 100
+application.config['MAX_CONTENT_LENGTH'] = 100 * 1000 * 1000
 
 CONNECTION_STRING = "mongodb+srv://w1761084:6thanos.@cluster0.k2oynue.mongodb.net/?retryWrites=true&w=majority"
 client = pymongo.MongoClient(CONNECTION_STRING)
