@@ -201,7 +201,7 @@ def home_data():
     user_info = user_controller.get_user_info()
 
     if "error_response" in user_info:
-        return {"username": "", "bmi": ""}, 500
+        return {"username": user_info["error_response"], "bmi": ""}, 500
 
     return jsonify(user_info), 200
 

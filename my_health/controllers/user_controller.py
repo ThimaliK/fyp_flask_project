@@ -149,7 +149,7 @@ class UserController():
                 print("T-----------------------------------------")
                 print(e)
 
-                return {"error_response": "could not retrieve user info"}
+                return {"error_response": e}
         
         else:
 
