@@ -249,3 +249,22 @@ def sign_out():
     return sign_out_response
 
 
+
+
+@application.route("/get_recipes_list", methods=["POST", "GET"])
+#@login_required
+def get_recipes_list():
+
+    if request.method == 'POST':
+
+        uploaded_files = request.files.getlist("files[]")
+        for uploaded_file in uploaded_files:
+            uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
+
+        food_conntroller = FoodController()
+        recognised_ingredients = food_conntroller.get_ingredient_predictions("ingredient_images/")
+        response = food_conntroller.extract_recipes_based_on_ingredients(recognised_ingredients)
+
+        return jsonify(response), 200
+
+
