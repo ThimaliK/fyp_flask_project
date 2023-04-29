@@ -85,7 +85,9 @@ class FoodController():
 
         self.save_recipes_as_json(top_5_recipes, "best_matched_recipes.json")
 
-        return top_5_recipes
+        best_matched_recipes = self.get_extracted_recipes("best_matched_recipes.json")
+
+        return best_matched_recipes
 
     
 
