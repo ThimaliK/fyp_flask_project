@@ -257,6 +257,15 @@ def get_recipes_list():
 
     if request.method == 'POST':
 
+        folder_path = "ingredient_images"
+
+        isExist = os.path.exists(folder_path)
+        if not isExist:
+
+        # Create a new directory because it does not exist
+            os.makedirs(folder_path)
+            
+
         uploaded_files = request.files.getlist("files[]")
         for uploaded_file in uploaded_files:
             uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
