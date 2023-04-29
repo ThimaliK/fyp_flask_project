@@ -263,8 +263,10 @@ def get_recipes_list():
 
         food_conntroller = FoodController()
         recognised_ingredients = food_conntroller.get_ingredient_predictions("ingredient_images/")
-        response = food_conntroller.extract_recipes_based_on_ingredients(recognised_ingredients)
+        top_5_recipes, recognised_ingredients = food_conntroller.extract_recipes_based_on_ingredients(recognised_ingredients)
 
-        return response, 200
+        response = {"recipes": top_5_recipes, "ingredients": recognised_ingredients}
+
+        return jsonify(response), 200
 
 

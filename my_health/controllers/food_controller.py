@@ -83,11 +83,11 @@ class FoodController():
         for i in range(5):
             top_5_recipes.append(recipes_list[top_5_recipe_indices[i]])
 
-        self.save_recipes_as_json(top_5_recipes, "best_matched_recipes.json")
+        #self.save_recipes_as_json(top_5_recipes, "best_matched_recipes.json")
 
-        best_matched_recipes = self.get_extracted_recipes("best_matched_recipes.json")
+        #best_matched_recipes = self.get_extracted_recipes("best_matched_recipes.json")
 
-        return best_matched_recipes
+        return top_5_recipes, recognised_ingredients
 
     
 
