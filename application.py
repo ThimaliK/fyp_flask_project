@@ -285,26 +285,44 @@ def get_customised_recipes_list():
 
     if request.method == 'POST':
 
-        folder_path = "ingredient_images"
+        print("C1--------------------------------------------")
 
-        isExist = os.path.exists(folder_path)
-        if not isExist:
+        #folder_path = "ingredient_images"
+
+        print("C2--------------------------------------------")
+
+        #isExist = os.path.exists(folder_path)
+        #if not isExist:
 
         # Create a new directory because it does not exist
-            os.makedirs(folder_path)
+         #   os.makedirs(folder_path)
+
+        
+        print("C3--------------------------------------------")
             
 
-        uploaded_files = request.files.getlist("files[]")
-        for uploaded_file in uploaded_files:
-            uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
+        #uploaded_files = request.files.getlist("files[]")
+        #for uploaded_file in uploaded_files:
+            #uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
+
+        print("C4--------------------------------------------")
 
         email = request.form.get('email')
 
+        print("C5--------------------------------------------")
+
         food_conntroller = FoodController()
+
+        print("C6--------------------------------------------")
+
         # recognised_ingredients = food_conntroller.get_ingredient_predictions("ingredient_images/")
-        top_5_recipes, country, food_preferences = food_conntroller.extract_customised_recipes("ingredient_images/", email)
+        top_5_recipes, country, food_preferences = food_conntroller.extract_customised_recipes(email)
+
+        print("C7--------------------------------------------")
 
         response = {"recipes": top_5_recipes, "country": country, "food_preferences": food_preferences}
+
+        print("C8--------------------------------------------")
 
         return jsonify(response), 200
 
