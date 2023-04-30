@@ -42,20 +42,10 @@ login_manager.init_app(application)
 def load_user(user_id):
 
     objInstance = ObjectId(user_id)
-
-    print("USER ID-----------------------------------------------"+ user_id)
-
-    print("a----------------------------------------------------")
-
     user_collection = pymongo.collection.Collection(db, 'users')
     cursor = user_collection.find( {"_id": objInstance} )
     data_json = MongoJSONEncoder().encode(list(cursor)[0])
-
-    print("b----------------------------------------------------")
-
     data_obj = json.loads(data_json)
-
-    print("c----------------------------------------------------")
 
     return User(id = data_obj["_id"],
         username = data_obj["username"],
@@ -79,13 +69,9 @@ def index():
 def sign_up():
     if request.method == "POST":
 
-        print("1-------------------------------------------------------")
-
         data = request.json
         username = data.get('username')
         email = data.get('email')
-
-        print("2-------------------------------------------------------")
 
         hashed_password = bcrypt.generate_password_hash(data.get("password")).decode('utf-8')
 
@@ -95,8 +81,6 @@ def sign_up():
         weight = data.get("weight")
         height = data.get("height")
         fit_bit_id = data.get("fit_bit_id")
-
-        print("3-------------------------------------------------------")
 
         new_user = {
             "username" : username,
@@ -126,16 +110,8 @@ def sign_up():
 def sign_in():
     if request.method == "POST":
 
-        print("1-------------------------------------------------------")
-
-        print("2-------------------------------------------------------")
-        
         email = request.json.get('email')
         password = request.json.get('password')
-
-        print("3-------------------------------------------------------")
-
-        print("4-------------------------------------------------------")
 
         user_controller = UserController()
         sign_in_response = user_controller.sign_in(email, password)
@@ -146,100 +122,13 @@ def sign_in():
         return jsonify(sign_in_response), 200
 
 
-@application.route("/recognise_ingredients", methods=["POST", "GET"])
+@application.route("/fitbit_data", methods=["POST", "GET"])
 #@login_required
-def recognise_ingredients():
+def fitbit_data():
 
-    if request.method == 'POST':
-
-        uploaded_files = request.files.getlist("files[]")
-        for uploaded_file in uploaded_files:
-            uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
-
-        food_conntroller = FoodController()
-        recognised_ingredients = food_conntroller.get_ingredient_predictions("ingredient_images/")
-        response = food_conntroller.extract_recipes_based_on_ingredients(recognised_ingredients)
-
-        return response, 200
-
-
-@application.route("/get_best_matched_recipes", methods=["POST", "GET"])
-#@login_required
-def get_best_matched_recipes():
-
-    food_conntroller = FoodController()
-    best_matched_recipes = food_conntroller.get_extracted_recipes("best_matched_recipes.json")
-
-    return best_matched_recipes, 200
-
-
-@application.route("/recognise_ingredients_for_customisation", methods=["POST", "GET"])
-#@login_required
-def recognise_ingredients_for_customisation():
-
-
-    print("F1-------------------------------------------------")
-
-    if request.method == 'POST':
-
-        print("F2-------------------------------------------------")
-
-        uploaded_files = request.files.getlist("files[]")
-        for uploaded_file in uploaded_files:
-            uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
-
-
-        email = request.form.get('email')
-
-        print("F3-------------------------------------------------")
-
-        food_conntroller = FoodController()
-
-        print("F4-------------------------------------------------")
-
-        response = food_conntroller.extract_customised_recipes("ingredient_images/", email)
-
-        return response
-
-@application.route("/get_best_matched_customised_recipes", methods=["POST", "GET"])
-#@login_required
-def get_best_matched_customised_recipes():
-
-    print("C1-------------------------------------------------")
-
-    food_conntroller = FoodController()
-
-    print("C2-------------------------------------------------")
-
-    best_matched_recipes = food_conntroller.get_extracted_recipes("best_matched_customised_recipes.json")
-
-    return best_matched_recipes, 200
-
-
-@application.route("/home_data", methods=["POST", "GET"])
-# @login_required
-def home_data():
-
-    user_controller = UserController()
-
-    user_info = user_controller.get_user_info()
-
-    if "error_response" in user_info:
-        return {"username": user_info["error_response"], "bmi": ""}, 500
-
-    return jsonify(user_info), 200
-
-
-############################################################################################################################
-
-
-@application.route("/fitbit_auth", methods=["POST", "GET"])
-@login_required
-def fitbit_auth():
-    logout_user()
-    return "fitbit authorised successfully"
-
-
+    fitbit_integration = FitbitIntegration()
+    data = fitbit_integration.authorise()
+    return data
 
 
 @application.route("/sign_out", methods=["POST", "GET"])
@@ -250,8 +139,6 @@ def sign_out():
     sign_out_response = user_controller.sign_out()
     
     return sign_out_response
-
-
 
 
 @application.route("/get_recipes_list", methods=["POST", "GET"])
@@ -288,45 +175,12 @@ def get_customised_recipes_list():
 
     if request.method == 'POST':
 
-        print("C1--------------------------------------------")
-
-        #folder_path = "ingredient_images"
-
-        print("C2--------------------------------------------")
-
-        #isExist = os.path.exists(folder_path)
-        #if not isExist:
-
-        # Create a new directory because it does not exist
-         #   os.makedirs(folder_path)
-
-        
-        print("C3--------------------------------------------")
-            
-
-        #uploaded_files = request.files.getlist("files[]")
-        #for uploaded_file in uploaded_files:
-            #uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
-
-        print("C4--------------------------------------------")
-
         email = request.form.get('email')
-
-        print("C5--------------------------------------------")
 
         food_conntroller = FoodController()
 
-        print("C6--------------------------------------------")
-
-        # recognised_ingredients = food_conntroller.get_ingredient_predictions("ingredient_images/")
         top_5_recipes, country, food_preferences = food_conntroller.extract_customised_recipes(email)
-
-        print("C7--------------------------------------------")
 
         response = {"recipes": top_5_recipes, "country": country, "food_preferences": food_preferences}
 
-        print("C8--------------------------------------------")
-
         return jsonify(response), 200
-
-

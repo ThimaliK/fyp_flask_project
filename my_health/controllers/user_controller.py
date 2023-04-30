@@ -3,7 +3,6 @@ from my_health.services.db_connection import DbConnection
 from my_health.models.user import User
 from flask_pymongo import pymongo
 from flask_bcrypt import Bcrypt
-# from application import application
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from bson import ObjectId
 

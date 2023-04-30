@@ -59,7 +59,7 @@ class FitbitIntegration():
 
         print("fit bit 8 -------------------------------------------------------------")
 
-        response = {"date_of_birth": date_of_birth, "height": height, "weight": weight, "avg_daily_steps": avg_daily_steps}
+        response = data
 
         return jsonify(response)
 
