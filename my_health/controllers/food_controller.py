@@ -143,7 +143,7 @@ class FoodController():
 
         print("F5-------------------------------------------------")
 
-        is_auth = current_user.is_authenticated
+        # is_auth = current_user.is_authenticated
 
         # print("is auth--------------"+is_auth)
 
@@ -213,7 +213,7 @@ class FoodController():
                 
             top_10_recipe_indices = np.argsort(jaccard_scores_with_user_info)[-10:]
             top_10_recipes = []
-            for i in range(10):
+            for i in reversed(range(10)):
                 top_10_recipes.append(recipes_list[top_10_recipe_indices[i]])
 
             print("7-----------------------------------------------")
@@ -235,16 +235,28 @@ class FoodController():
 
             top_5_recipe_indices = np.argsort(jaccard_scores_with_ingredients)[-10:]
             top_5_recipes = []
-            for i in range(5):
+            for i in reversed(range(5)):
                 top_5_recipes.append(recipes_list[top_5_recipe_indices[i]])
 
             print("9-----------------------------------------------")
 
-            self.save_recipes_as_json(top_5_recipes, "best_matched_customised_recipes.json")
+            # self.save_recipes_as_json(top_5_recipes, "best_matched_customised_recipes.json")
 
             print("10-----------------------------------------------")
+
+            folder = "ingredient_images/"
+        
+            for filename in os.listdir(folder):
+                file_path = os.path.join(folder, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    print('Failed to delete %s. Reason: %s' % (file_path, e))
                 
-            return "5_cutomised_recipes_extracted", 200
+            return top_5_recipes, country, food_preferences
             
         except:
                 

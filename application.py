@@ -264,7 +264,7 @@ def get_recipes_list():
 
         # Create a new directory because it does not exist
             os.makedirs(folder_path)
-            
+
 
         uploaded_files = request.files.getlist("files[]")
         for uploaded_file in uploaded_files:
@@ -275,6 +275,36 @@ def get_recipes_list():
         top_5_recipes, recognised_ingredients = food_conntroller.extract_recipes_based_on_ingredients(recognised_ingredients)
 
         response = {"recipes": top_5_recipes, "ingredients": recognised_ingredients}
+
+        return jsonify(response), 200
+    
+
+@application.route("/get_customised_recipes_list", methods=["POST", "GET"])
+#@login_required
+def get_customised_recipes_list():
+
+    if request.method == 'POST':
+
+        folder_path = "ingredient_images"
+
+        isExist = os.path.exists(folder_path)
+        if not isExist:
+
+        # Create a new directory because it does not exist
+            os.makedirs(folder_path)
+            
+
+        uploaded_files = request.files.getlist("files[]")
+        for uploaded_file in uploaded_files:
+            uploaded_file.save(os.path.join("ingredient_images/", secure_filename(uploaded_file.filename)))
+
+        email = request.form.get('email')
+
+        food_conntroller = FoodController()
+        # recognised_ingredients = food_conntroller.get_ingredient_predictions("ingredient_images/")
+        top_5_recipes, country, food_preferences = food_conntroller.extract_customised_recipes("ingredient_images/", email)
+
+        response = {"recipes": top_5_recipes, "country": country, "food_preferences": food_preferences}
 
         return jsonify(response), 200
 
