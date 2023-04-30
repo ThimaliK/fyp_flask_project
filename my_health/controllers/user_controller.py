@@ -21,7 +21,7 @@ class UserController():
         for user in user_collection.find():
             if user["email"]==new_user["email"] :
                 print("taken email - "+user["email"])
-                return "An account with this email address is already registered"
+                return "email already registered"
 
         print("4-------------------------------------------------------")
 
@@ -41,67 +41,73 @@ class UserController():
 
         user_collection = pymongo.collection.Collection(db, 'users')
 
-        cursor = user_collection.find_one( {"email": email} )
-
-        print(cursor)
-
-        print(cursor["password"])
-        print(password)
-
-        print(self.user_bcrypt.check_password_hash(cursor["password"], password))
-
         try:
 
-            #data_json = MongoJSONEncoder().encode(list(cursor)[0])
+            cursor = user_collection.find_one( {"email": email} )
 
-            print("5-------------------------------------------------------")
+            print(cursor)
 
-            # data_obj = json.loads(data_json)
+            print(cursor["password"])
+            print(password)
 
-            if cursor:
-                print("5.5-------------------------------------------------------")
+            print(self.user_bcrypt.check_password_hash(cursor["password"], password))
 
-                if self.user_bcrypt.check_password_hash(cursor["password"], password):
+            try:
 
-                    print("6-------------------------------------------------------")
+                #data_json = MongoJSONEncoder().encode(list(cursor)[0])
 
-                    correct_user = User(
-                        id = cursor.get('_id'),
-                        username = cursor["username"],
-                        email = cursor["email"],
-                        password = cursor["password"],
-                        country = cursor["country"],
-                        birth_date = cursor["birth_date"],
-                        food_preferences = cursor["food_preferences"],
-                        weight = cursor["weight"],
-                        height = cursor["height"],
-                        fit_bit_id = cursor["fit_bit_id"]
-                    )
+                print("5-------------------------------------------------------")
 
-                    print("7-------------------------------------------------------")
+                # data_obj = json.loads(data_json)
 
-                    login_user(correct_user)
+                if cursor:
+                    print("5.5-------------------------------------------------------")
 
-                    print("8-------------------------------------------------------")
+                    if self.user_bcrypt.check_password_hash(cursor["password"], password):
 
-                    # return json responses
+                        print("6-------------------------------------------------------")
 
-                    if cursor["weight"]!=None and cursor["height"]!=None:
-                        weight = int(cursor["weight"])
-                        height = int(cursor["height"])
+                        correct_user = User(
+                            id = cursor.get('_id'),
+                            username = cursor["username"],
+                            email = cursor["email"],
+                            password = cursor["password"],
+                            country = cursor["country"],
+                            birth_date = cursor["birth_date"],
+                            food_preferences = cursor["food_preferences"],
+                            weight = cursor["weight"],
+                            height = cursor["height"],
+                            fit_bit_id = cursor["fit_bit_id"]
+                        )
 
-                        bmi = self.get_bmi(weight, height)
+                        print("7-------------------------------------------------------")
+
+                        login_user(correct_user)
+
+                        print("8-------------------------------------------------------")
+
+                        # return json responses
+
+                        if cursor["weight"]!=None and cursor["height"]!=None:
+                            weight = int(cursor["weight"])
+                            height = int(cursor["height"])
+
+                            bmi = self.get_bmi(weight, height)
+
+                        else:
+                            bmi = ""
+
+                        return {"username": cursor["username"], "bmi": bmi, "email": cursor["email"]}
 
                     else:
-                        bmi = ""
+                        return {"error_response": "Invalid credentials"}  
 
-                    return {"username": cursor["username"], "bmi": bmi, "email": cursor["email"]}
-
-                else:
-                    return {"error_response": "Invalid credentials"}  
-
+            except:
+                return {"error_response": "Invalid credentials"} 
+        
         except:
             return {"error_response": "Invalid credentials"} 
+
 
     
     def sign_out(self):

@@ -113,6 +113,9 @@ def sign_up():
         user_controller = UserController()
         sign_up_response = user_controller.sign_up(new_user)
 
+        if sign_up_response == "email already registered":
+            return jsonify({"response": "There is an existing account for this email address"}), 403
+
         return jsonify({"response": sign_up_response}), 200
 
     return jsonify({"response": "registration unsuccessful"}), 500
@@ -138,7 +141,7 @@ def sign_in():
         sign_in_response = user_controller.sign_in(email, password)
 
         if "error_response" in sign_in_response:
-            return jsonify(sign_in_response), 401
+            return jsonify({"username": sign_in_response["error_response"], "bmi": "", "email": ""}), 401
 
         return jsonify(sign_in_response), 200
 
